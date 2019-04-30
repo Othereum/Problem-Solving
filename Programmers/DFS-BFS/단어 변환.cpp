@@ -20,7 +20,7 @@ int solution(string begin, string target, vector<string> words)
 	// begin은 words 안에 없으므로 가상의 인덱스를 설정
 	static constexpr auto begin_idx{ static_cast<size_t>(-1) };
 
-	const size_t size{ words.size() };
+	const auto size{ words.size() };
 
 	// 너비 우선 탐색을 위한 탐색 queue
 	queue<size_t> search_queue;
@@ -40,13 +40,13 @@ int solution(string begin, string target, vector<string> words)
 
 	while (!search_queue.empty())
 	{
-		const size_t idx{ search_queue.front() };
+		const auto idx{ search_queue.front() };
 		search_queue.pop();
 
 		if (target == words[idx])
 		{
 			auto p{ idx };
-			size_t cnt{};
+			auto cnt{ 0 };
 
 			// 변환된 경로를 역추적하여 횟수 계산
 			while (p != begin_idx)
@@ -77,8 +77,9 @@ int solution(string begin, string target, vector<string> words)
 // 두 문자열간에 다른 문자가 한 개만 있어야 true
 bool IsConvertible(const string& a, const string& b)
 {
-	bool bDiffFound{};
-	for (size_t i{}; i < a.size(); ++i)
+	auto bDiffFound{ false };
+	const auto size{ a.size() };
+	for (size_t i{}; i < size; ++i)
 	{
 		if (a[i] != b[i])
 		{
