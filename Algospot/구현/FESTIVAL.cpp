@@ -9,6 +9,8 @@ int main()
 {
 	int c;
 	cin >> c;
+    cout << fixed;
+    cout.precision(11);
 	for (auto i = 0; i < c; ++i)
 	{
 		int n, l;
