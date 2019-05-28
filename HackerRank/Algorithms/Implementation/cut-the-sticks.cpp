@@ -1,3 +1,6 @@
+#include <algorithm>
+#include <vector>
+using namespace std;
 vector<int> cutTheSticks(vector<int> arr) {
     sort(arr.begin(), arr.end());
     auto a{arr[0]}, cnt{0};
