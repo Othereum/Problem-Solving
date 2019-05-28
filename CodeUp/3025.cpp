@@ -6,7 +6,7 @@ using namespace std;
 
 // 기본적으로 DP 문제
 // C[i]는 x^(i+1) 항의 계수를 나타냄
-// x 부터 시작해 (x+r)을 하나씩 곱해간다
+// x 부터 시작해 (x+1), (x+2), ..., (x+r) 차례대로 곱해나감
 vector<long long> PolynomialExpansion(int n)
 {
 	vector<long long> C(n);
