@@ -98,3 +98,138 @@ void ShellSort(It first, It last, Compare comp)
 
 template <class It>
 void ShellSort(It first, It last) { ShellSort(first, last, std::less<>{}); }
+
+
+template <class It, class Compare>
+void QuickSort(const It first, const It last, Compare comp)
+{
+	if (std::distance(first, last) <= 1) return;
+
+	const auto pivot = std::prev(last);
+
+	auto left = first;
+	for (auto it = first; it != last; ++it)
+		if (comp(*it, *pivot))
+			std::iter_swap(it, left++);
+	
+	std::iter_swap(left, pivot);
+
+	QuickSort(first, left, comp);
+	QuickSort(std::next(left), last, comp);
+}
+
+template <class It>
+void QuickSort(It first, It last)
+{
+	QuickSort(first, last, std::less<>{});
+}
+
+
+template <class It, class Compare>
+void DownHeap(It it, const It first, const It last, Compare comp)
+{
+	while (it < last)
+	{
+		const auto left = it + (it - first) + 1;
+		const auto right = left + 1;
+
+		auto next = it;
+		if (left < last && comp(*next, *left)) next = left;
+		if (right < last && comp(*next, *right)) next = right;
+		if (next == it) break;
+
+		std::iter_swap(it, next);
+		it = next;
+	}
+}
+
+template <class It, class Compare>
+void Heapify(const It first, const It last, Compare comp)
+{
+	for (ptrdiff_t i = (last-first-1)/2; i >= 0; --i)
+	{
+		DownHeap(first + i, first, last, comp);
+	}
+}
+
+template <class It, class Compare>
+void HeapSort(const It first, const It last, Compare comp)
+{
+	Heapify(first, last, comp);
+	for (auto it = last-1; it != first; --it)
+	{
+		std::iter_swap(first, it);
+		DownHeap(first, first, it, comp);
+	}
+}
+
+template <class It>
+void HeapSort(It first, It last)
+{
+	HeapSort(first, last, std::less<>{});
+}
+
+
+template <class T, class Compare = std::less<>>
+class Tree
+{
+public:
+	Tree() = default;
+	explicit Tree(Compare comp) :comp_{comp} {}
+	
+	void Insert(T data)
+	{
+		if (!root_) root_ = std::make_unique<Node>(std::move(data));
+		else root_->Insert(std::move(data), comp_);
+	}
+	
+	template <class Fn>
+	void InorderTraversal(Fn&& fn)
+	{
+		if (root_) root_->InorderTraversal(fn);
+	}
+
+private:
+	struct Node
+	{
+		explicit Node(T data) :data{std::move(data)} {}
+		
+		void Insert(T new_data, Compare comp)
+		{
+			auto& target = comp(new_data, data) ? left : right;
+			if (!target) target = std::make_unique<Node>(std::move(new_data));
+			else target->Insert(std::move(new_data), comp);
+		}
+		
+		template <class Fn>
+		void InorderTraversal(Fn&& fn)
+		{
+			if (left) left->InorderTraversal(fn);
+			fn(std::move(data));
+			if (right) right->InorderTraversal(fn);
+		}
+
+		T data;
+		std::unique_ptr<Node> left, right;
+	};
+	
+	std::unique_ptr<Node> root_;
+	[[no_unique_address]] Compare comp_;
+};
+
+template <class It, class Compare>
+void TreeSort(It first, const It last, Compare comp)
+{
+	Tree<typename std::iterator_traits<It>::value_type, Compare> tree{comp};
+	
+	for (auto it = first; it != last; ++it)
+		tree.Insert(std::move(*it));
+
+	tree.InorderTraversal([&first](auto data) { *first++ = std::move(data); });
+}
+
+template <class It>
+void TreeSort(It first, It last)
+{
+	TreeSort(first, last, std::less<>{});
+}
