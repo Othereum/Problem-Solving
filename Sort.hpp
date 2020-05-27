@@ -1,5 +1,7 @@
 #pragma once
 #include <algorithm>
+#include <queue>
+#include <numeric>
 
 template <class It, class Compare>
 void SelectionSort(It first, It last, Compare comp)
@@ -232,4 +234,61 @@ template <class It>
 void TreeSort(It first, It last)
 {
 	TreeSort(first, last, std::less<>{});
+}
+
+
+template <class It>
+void RadixSort(const It first, const It last)
+{
+	using T = typename std::iterator_traits<It>::value_type;
+	constexpr auto radix = 10;
+	const auto size = static_cast<size_t>(std::distance(first, last));
+	
+	std::queue<T> buckets[radix];
+
+	for (T div = radix;; div *= radix)
+	{
+		for (auto it = first; it != last; ++it)
+		{
+			const auto idx = *it % div / (div/radix);
+			buckets[idx].push(std::move(*it));
+		}
+
+		auto finish = false;
+		auto it = first;
+
+		for (auto& bucket : buckets)
+		{
+			if (bucket.size() == size) finish = true;
+			
+			while (!bucket.empty())
+			{
+				*it++ = std::move(bucket.front());
+				bucket.pop();
+			}
+		}
+
+		if (finish) break;
+	}
+}
+
+
+// The output should not be in the [first, last] range.
+template <class It>
+void CountingSort(const It first, const It last, const It output)
+{
+	using T = typename std::iterator_traits<It>::value_type;
+	std::vector<size_t> count;
+	for (auto it = first; it != last; ++it)
+	{
+		const auto val = static_cast<size_t>(*it);
+		if (count.size() <= val) count.resize(val + 1);
+		++count[*it];
+	}
+	std::partial_sum(count.begin(), count.end(), count.begin());
+	for (auto it = first; it != last; ++it)
+	{
+		const auto idx = --count[*it];
+		output[idx] = std::move(*it);
+	}
 }
